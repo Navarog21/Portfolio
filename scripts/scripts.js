@@ -50,6 +50,7 @@ let geometriesArray = [new THREE.TetrahedronGeometry(SIZE, 0),new THREE.BoxGeome
 let vectorsArray = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(-50, 50, -50),
                     new THREE.Vector3(50, 50, -50), new THREE.Vector3(0, 50, -100)];
 
+
 createShape();
 
 
