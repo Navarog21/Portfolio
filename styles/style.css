@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Mountains+of+Christmas&family=Pacifico&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IM+Fell+DW+Pica:ital@1&family=Mountains+of+Christmas&family=Pacifico&display=swap');
 
 html, body
 {
@@ -10,6 +10,7 @@ html, body
   margin: 0;
   padding: 0;
   background: black;
+  font-family: 'IM Fell DW Pica', serif;
 }
 
 canvas
@@ -23,14 +24,28 @@ canvas
 #menu
 {
   display: flex;
+  justify-content: space-around;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100px;
+  display: flex;
 }
 
-a
+.menuElement
 {
   text-decoration: none;
   color: white;
-  font-size: 2vw;
+  font-size: 1.8vw;
   font-weight: bold;
+  cursor: pointer;
+}
+
+.menuElement:hover
+{
+
 }
 
 #presentation
@@ -39,21 +54,19 @@ a
   flex-direction: column;
 }
 
-span
+.presentation
 {
   color: white;
-  font-family: 'Pacifico', cursive;
   z-index: 1;
+  margin-top: 20px;
 }
 
 #name
 {
-  position: absolute;
-  font-size: 6vw;
-
+  font-size: 5vw;
 }
 
 #job
 {
-  font-size: 4vw;
+  font-size: 2vw;
 }

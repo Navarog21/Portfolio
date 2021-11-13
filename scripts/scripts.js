@@ -18,11 +18,9 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
 const scene = new THREE.Scene();
-scene.fog = new THREE.FogExp2( "#770fd8", 0.007 );
-scene.fog = new THREE.FogExp2( "red", 0.003 );
 
 const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.01, 10000 );
-camera.position.z = 50;
+camera.position.z = 60;
 
 const light = new THREE.PointLight('white', 2, 100);
 light.position.y = 20;
@@ -41,7 +39,7 @@ light4.position.x = -20;
 scene.add(light4);
 
 let SIZE = 12;
-let SHAPE;
+let SHAPES = [];
 let PARTICLES = [];
 
 
@@ -49,7 +47,19 @@ let geometriesArray = [new THREE.TetrahedronGeometry(SIZE, 0),new THREE.BoxGeome
                       new THREE.OctahedronGeometry(SIZE, 0),new THREE.DodecahedronGeometry(SIZE, 0),
                       new THREE.IcosahedronGeometry(SIZE, 0)];
 
+let vectorsArray = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(-50, 50, -50),
+                    new THREE.Vector3(50, 50, -50), new THREE.Vector3(0, 50, -100)];
+
 createShape();
+
+
+
+
+
+function placeShape()
+{
+
+}
 
 function createShape()
 {
@@ -57,19 +67,31 @@ function createShape()
   let geometry = geometriesArray[randomGeometryIndex];
   geometry.elementsNeedUpdate = true;
   let material = randomMaterial();
-  SHAPE = new THREE.Mesh(geometry, material);
-  SHAPE.scale.setScalar(0);
-  scene.add(SHAPE);
+  let mesh = new THREE.Mesh(geometry, material);
+  mesh.scale.setScalar(0);
+
+  for (let i = 0; i < vectorsArray.length; i++)
+  {
+    let clone = mesh.clone();
+    clone.position.set(vectorsArray[i].x, vectorsArray[i].y, vectorsArray[i].z)
+    SHAPES.push(clone)
+    scene.add(clone);
+  }
+
   let reduceScale = setInterval(() =>
   {
-    SHAPE.scale.addScalar(0.08);
-    if (SHAPE.scale.x >= 1) clearInterval(reduceScale)
+    for (let i = 0; i < SHAPES.length; i++)
+    {
+      SHAPES[i].scale.addScalar(0.08);
+    }
+    if (SHAPES[0].scale.x >= 1) clearInterval(reduceScale)
   },10)
+
 }
 
 function randomMaterial()
 {
-  let shapeColors = ["red", "#4626bf", "#2652bf", '#2679bf']
+  let shapeColors = ["#2652bf", '#2679bf']
   let color = shapeColors[getRandomNumber(0, shapeColors.length-1)]
   let material = new THREE.MeshPhongMaterial({
     color: shapeColors[getRandomNumber(0, shapeColors.length-1)],
@@ -93,12 +115,15 @@ canvas.addEventListener('click', () =>
   audio.play();
   let reduceScale = setInterval(() =>
   {
-    SHAPE.scale.subScalar(0.05);
-    if (SHAPE.scale.x <= 0)
+    for (let i = 0; i < SHAPES.length; i++) {
+      SHAPES[i].scale.subScalar(0.05);
+    }
+    if (SHAPES[0].scale.x <= 0)
     {
       clearInterval(reduceScale);
       setTimeout(() =>
       {
+        SHAPES = [];
         createShape()
       }, 300)
     }
@@ -123,7 +148,7 @@ class Particle
     this.x = getRandomNumber(-100, 100);
     this.y = getRandomNumber(-100, 100);
     this.z = getRandomNumber(-100, 100);;
-    this.color = "#2652bf";
+    this.color = "#0256df";
     this.radius = 0.1;
     this.vertices = [];
   }
@@ -168,9 +193,15 @@ control.enablePan = false;
 let gameLoop = () => {
   control.update();
   renderer.render(scene, camera);
-  SHAPE.geometry.radius += 0.01;
-  SHAPE.rotation.x += 0.013;
-  SHAPE.rotation.y += 0.013;
+
+  for (let i = 0; i < SHAPES.length; i++)
+  {
+    SHAPES[i].geometry.radius += 0.01;
+    SHAPES[i].rotation.x += 0.013;
+    SHAPES[i].rotation.y += 0.013;
+  }
+
+
   requestAnimationFrame(gameLoop);
 };
 
