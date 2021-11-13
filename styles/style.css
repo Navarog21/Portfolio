@@ -20,11 +20,40 @@ canvas
   height: 100%;
 }
 
+#menu
+{
+  display: flex;
+}
+
+a
+{
+  text-decoration: none;
+  color: white;
+  font-size: 2vw;
+  font-weight: bold;
+}
+
+#presentation
+{
+  display: flex;
+  flex-direction: column;
+}
+
+span
+{
+  color: white;
+  font-family: 'Pacifico', cursive;
+  z-index: 1;
+}
+
 #name
 {
   position: absolute;
   font-size: 6vw;
-  color: white;
-  font-family: 'Pacifico', cursive;
-  z-index: 10;
+
+}
+
+#job
+{
+  font-size: 4vw;
 }
