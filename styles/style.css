@@ -34,6 +34,16 @@ canvas
   display: flex;
 }
 
+#socials
+{
+  display: flex;
+}
+
+.social
+{
+  margin: 0 10px;
+}
+
 .menuElement
 {
   text-decoration: none;
@@ -69,4 +79,10 @@ canvas
 #job
 {
   font-size: 2vw;
+}
+
+#contactContainer
+{
+  display: none;
+  position: absolute;
 }

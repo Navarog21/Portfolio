@@ -1,209 +1,221 @@
 import * as THREE from 'https://unpkg.com/three@0.119.0/build/three.module.js';
 import { OrbitControls } from 'https://unpkg.com/three@0.119.0/examples/jsm/controls/OrbitControls.js';
-import { GLTFLoader } from 'https://unpkg.com/three@0.119.0/examples/jsm/loaders/GLTFLoader.js';
-import { FlakesTexture } from 'https://cdn.jsdelivr.net/npm/three@0.124/examples/jsm/textures/FlakesTexture.js';
 import { RGBELoader } from 'https://unpkg.com/three@0.119.0/examples/jsm/loaders/RGBELoader.js';
+import { GLTFLoader } from 'https://unpkg.com/three@0.119.0/examples/jsm/loaders/GLTFLoader.js';
 
-let canvas = document.querySelector('#background');
+const canvas = document.querySelector('#background');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 const renderer = new THREE.WebGLRenderer({
   alpha: true,
   autoclear: true,
-  canvas: canvas
+  canvas: canvas,
+  antialiasing: true
 });
 
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-const scene = new THREE.Scene();
-
-const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.01, 10000 );
-camera.position.z = 60;
-
-const light = new THREE.PointLight('white', 2, 100);
-light.position.y = 20;
-scene.add(light);
-
-const light2 = new THREE.PointLight('white', 2, 100);
-light2.position.y = -20;
-scene.add(light2);
-
-const light3 = new THREE.PointLight('white', 2, 100);
-light3.position.z = 20;
-scene.add(light3);
-
-const light4 = new THREE.PointLight('white', 3, 100);
-light4.position.x = -20;
-scene.add(light4);
-
-let SIZE = 12;
-let SHAPES = [];
-let PARTICLES = [];
-
-
-let geometriesArray = [new THREE.TetrahedronGeometry(SIZE, 0),new THREE.BoxGeometry(SIZE, SIZE, SIZE),
-                      new THREE.OctahedronGeometry(SIZE, 0),new THREE.DodecahedronGeometry(SIZE, 0),
-                      new THREE.IcosahedronGeometry(SIZE, 0)];
-
-let vectorsArray = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(-50, 50, -50),
-                    new THREE.Vector3(50, 50, -50), new THREE.Vector3(0, 50, -100)];
-
-
-createShape();
-
-
-
-
-
-function placeShape()
+window.addEventListener('resize', () =>
 {
-
-}
-
-function createShape()
-{
-  let randomGeometryIndex = getRandomNumber(0, geometriesArray.length-1);
-  let geometry = geometriesArray[randomGeometryIndex];
-  geometry.elementsNeedUpdate = true;
-  let material = randomMaterial();
-  let mesh = new THREE.Mesh(geometry, material);
-  mesh.scale.setScalar(0);
-
-  for (let i = 0; i < vectorsArray.length; i++)
-  {
-    let clone = mesh.clone();
-    clone.position.set(vectorsArray[i].x, vectorsArray[i].y, vectorsArray[i].z)
-    SHAPES.push(clone)
-    scene.add(clone);
-  }
-
-  let reduceScale = setInterval(() =>
-  {
-    for (let i = 0; i < SHAPES.length; i++)
-    {
-      SHAPES[i].scale.addScalar(0.08);
-    }
-    if (SHAPES[0].scale.x >= 1) clearInterval(reduceScale)
-  },10)
-
-}
-
-function randomMaterial()
-{
-  let shapeColors = ["#2652bf", '#2679bf']
-  let color = shapeColors[getRandomNumber(0, shapeColors.length-1)]
-  let material = new THREE.MeshPhongMaterial({
-    color: shapeColors[getRandomNumber(0, shapeColors.length-1)],
-    side: THREE.DoubleSide,
-    transparent: true,
-    reflectivity: 0.6,
-    opacity: 0.9,
-    shininess: 150
-  })
-
-  return material;
-}
-
-let backgroundMusic = new Audio('sounds/background2.mp3');
-
-canvas.addEventListener('click', () =>
-{
-  let audio = new Audio('sounds/magic.wav');
-  backgroundMusic.play();
-  audio.volume = 0.1;
-  audio.play();
-  let reduceScale = setInterval(() =>
-  {
-    for (let i = 0; i < SHAPES.length; i++) {
-      SHAPES[i].scale.subScalar(0.05);
-    }
-    if (SHAPES[0].scale.x <= 0)
-    {
-      clearInterval(reduceScale);
-      setTimeout(() =>
-      {
-        SHAPES = [];
-        createShape()
-      }, 300)
-    }
-  },10)
-
-
-
-  function extendScale()
-  {
-    let extend = setInterval(() =>
-    {
-      if (SHAPE.scale.x > 0.5) clearInterval(extend);
-      SHAPE.geometry.radius += 0.01;
-    },10)
-  }
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio,2))
 })
 
-class Particle
+renderer.setSize(canvas.width, canvas.height);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio,2))
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 10000);
+camera.position.set(-10, 10, 8);
+
+let light, light2, light3, light4, light5, light6;
+
+light = new THREE.PointLight('white', 1, 100);
+light2 = new THREE.PointLight('white', 1, 100);
+light3 = new THREE.PointLight('white', 1, 100);
+light4 = new THREE.PointLight('white', 1, 100);
+light5 = new THREE.PointLight('white', 1, 100);
+light6 = new THREE.PointLight('white', 1, 100);
+//---------------------------//
+light.position.set(0, 0, 10);
+light2.position.set(0, 0, -10);
+light3.position.set(-10, 0, 0);
+light4.position.set(10, 0, 0);
+light5.position.set(0, -10, 0);
+light6.position.set(0, 10, 0);
+
+scene.add(light, light2, light3, light4, light5, light6);
+
+const colorPallets =
+[
+  ['#507255', "#488B49", "#4AAD52"],
+  ['#D72323', "orange", "#E0CA3C", "#000500", "#191102"],
+  ['#0051A8', "#D9F0FF", "#A3D5FF", "#83C9F4"],
+  ['#00A83B', "#F0EC57", "#34190C"]
+]
+
+let COLOR_PALLET = getRandomColorPallet();
+let LITTLE_CUBE_NEXT_POSITION = new THREE.Vector3(-5, -5, -5); // Point de départ
+let CUBES_ARRAY = [];
+let CUBES_COORDINATES = []
+
+let x = -5;
+let y = -5;
+let z = -5;
+
+function randomAnimation()
+{
+  let randomNumber = getRandomNumber(0, CUBES_COORDINATES.length-1);
+  let clone = CUBES_COORDINATES[randomNumber];
+  CUBES_COORDINATES.splice(randomNumber, 1);
+  return clone;
+}
+
+class Cube
 {
   constructor()
   {
-    this.x = getRandomNumber(-100, 100);
-    this.y = getRandomNumber(-100, 100);
-    this.z = getRandomNumber(-100, 100);;
-    this.color = "#0256df";
-    this.radius = 0.1;
-    this.vertices = [];
+    this.bigCubeSize = 10;
+    this.bigCubePosition = new THREE.Vector3();
+    this.size = 2;
+    this.position = randomAnimation();
+    this.scale = false;
   }
 
-  draw()
+  create()
   {
-    let particleGeometry = new THREE.Geometry();
-    particleGeometry.vertices.push(new THREE.Vector3(this.x, this.y, this.z))
-    let particleMaterial = new THREE.PointsMaterial({color: this.color})
-    let particle = new THREE.Points(particleGeometry, particleMaterial);
-    particle.position.set(this.x, this.y, this.z)
-    scene.add(particle)
+    const geometry = new THREE.BoxGeometry(this.size, this.size, this.size);
+    const material = new THREE.MeshStandardMaterial({
+      color: COLOR_PALLET[getRandomNumber(0,COLOR_PALLET.length-1)],
+      transparent: true,
+      opacity: 0.8
+    })
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.name = "cube";
+    mesh.position.set(this.position.x, this.position.y, this.position.z);
+    Object.defineProperty(mesh, 'grow',{value: false, writable: true})
+    CUBES_ARRAY.push(mesh);
+    scene.add(mesh);
   }
 }
 
-function createParticle()
+function addCube()
 {
-  for (let i = 0; i < 2500; i++)
+  let cube = new Cube();
+  cube.create();
+  CUBES_ARRAY.push(cube);
+}
+
+function scaleCube()
+{
+  CUBES_ARRAY.forEach((cube) =>
   {
-    PARTICLES.push(new Particle());
-    PARTICLES[i].draw();
-  }
+    if (cube.grow === false)
+    {
+      cube.scale.subScalar(0.012);
+      if (cube.scale.x <= 0.1)
+      {
+        cube.grow = true;
+      }
+    }
+    if (cube.grow === true)
+    {
+      cube.scale.addScalar(0.009);
+      if (cube.scale.x >= 0.9)
+      {
+        cube.grow = false;
+      }
+    }
+  });
 }
 
-createParticle();
-
-function createLight(color = "white")
-{
-  const light = new THREE.PointLight(color, 1, 100);
-  light.setPosition(x, y, z)
-  scene.add(light);
-}
-
-
-
-let control = new OrbitControls(camera, renderer.domElement);
-control.autoRotate = true;
-control.autoRotateSpeed = 8;
+const control = new OrbitControls(camera, renderer.domElement);
 control.enableDamping = true;
-control.enablePan = false;
+control.enablePan = true;
 
-let gameLoop = () => {
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+
+const loop = () =>
+{
+  raycaster.setFromCamera(pointer, camera);
+  let intersects = raycaster.intersectObjects(scene.children)
+
+  if (CUBES_COORDINATES.length != 0) {
+    addCube();
+  }
+  else {
+    window.addEventListener('click', resetShape);
+  }
+  scaleCube();
   control.update();
   renderer.render(scene, camera);
+  requestAnimationFrame(loop)
+}
 
-  for (let i = 0; i < SHAPES.length; i++)
+
+getCubesCoordinates();
+function getCubesCoordinates(size)
+{
+  for (let i = 0; i < 125; i++)
   {
-    SHAPES[i].geometry.radius += 0.01;
-    SHAPES[i].rotation.x += 0.013;
-    SHAPES[i].rotation.y += 0.013;
+    let vector = new THREE.Vector3(x, y, z);
+    CUBES_COORDINATES.push(vector);
+    if(z <= 3){
+      if (z == 3){
+        z = -5;
+        if (y <= 3){
+          if (y == 3) {
+            y = -5;
+            x += 2;
+          }
+          else {
+            y += 2;
+          }
+        }
+      }
+      else {
+        z += 2
+      }
+    }
   }
+  loop();
+}
 
+window.addEventListener('pointermove', onPointerMove)
 
-  requestAnimationFrame(gameLoop);
-};
+function getRandomColorPallet()
+{
+  return colorPallets[getRandomNumber(0,colorPallets.length-1)];
+}
 
-gameLoop()
+function onPointerMove(event)
+{
+	pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+	pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
+}
+
+function resetShape()
+{
+  console.log(CUBES_ARRAY);
+  CUBES_ARRAY.forEach((cube) =>
+  {
+    cube.rotate();
+  });
+}
+
+// Je n'ai besoin de créer les cubes qu'une seule fois. Seul la visibilité change afin de créer l'illusion d'une animation
+function basicAnimation(size, bigCubeSize)
+{
+  let vectors = [];
+  CUBES_COORDINATES.forEach((cube) =>
+  {
+    if (cube.x == -3)
+    {
+      vectors.push(cube)
+    }
+  });
+  console.log(vectors);
+
+}
