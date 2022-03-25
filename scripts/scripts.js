@@ -51,18 +51,24 @@ const colorPallets =
 [
   ['#507255', "#488B49", "#4AAD52"],
   ['#D72323', "orange", "#E0CA3C", "#000500", "#191102"],
-  ['#0051A8', "#D9F0FF", "#A3D5FF", "#83C9F4"],
+  ['#0051A8', "#D9F0FF", "#284DF3", "#83C9F4", "#4879FF"],
   ['#00A83B', "#F0EC57", "#34190C"]
 ]
 
+let index = 124;
 let COLOR_PALLET = getRandomColorPallet();
 let LITTLE_CUBE_NEXT_POSITION = new THREE.Vector3(-5, -5, -5); // Point de départ
 let CUBES_ARRAY = [];
 let CUBES_COORDINATES = []
+let ANIMATIONS_LIST = [rightToLeftAnimation, oddAndEvenAnimation, randomAnimation, bottomToTopAnimation];
+let ANIMATIONS_PLAY = ANIMATIONS_LIST[getRandomNumber(0, ANIMATIONS_LIST.length-1)];
 
 let x = -5;
 let y = -5;
 let z = -5;
+
+
+function bottomToTopAnimation()
 
 function randomAnimation()
 {
@@ -72,6 +78,42 @@ function randomAnimation()
   return clone;
 }
 
+
+
+function rightToLeftAnimation()
+{
+  let clone = CUBES_COORDINATES[index];
+  index--;
+  return clone;
+}
+
+function oddAndEvenAnimation()
+{
+  let clone;
+  if (index % 2 == 0)
+  {
+    if (index == 0)
+    {
+      clone = CUBES_COORDINATES[index];
+      index = 1;
+      return clone;
+    }
+    else
+    {
+      clone = CUBES_COORDINATES[index];
+      index-=2;
+      return clone;
+    }
+  }
+
+  if (index%2 != 0 && index != 0)
+  {
+    clone = CUBES_COORDINATES[index];
+    index += 2;
+    return clone;
+  }
+}
+
 class Cube
 {
   constructor()
@@ -79,7 +121,7 @@ class Cube
     this.bigCubeSize = 10;
     this.bigCubePosition = new THREE.Vector3();
     this.size = 2;
-    this.position = randomAnimation();
+    this.position = ANIMATIONS_PLAY();
     this.scale = false;
   }
 
@@ -104,7 +146,6 @@ function addCube()
 {
   let cube = new Cube();
   cube.create();
-  CUBES_ARRAY.push(cube);
 }
 
 function scaleCube()
@@ -142,7 +183,7 @@ const loop = () =>
   raycaster.setFromCamera(pointer, camera);
   let intersects = raycaster.intersectObjects(scene.children)
 
-  if (CUBES_COORDINATES.length != 0) {
+  if (CUBES_ARRAY.length <= 124) {
     addCube();
   }
   else {
@@ -158,7 +199,7 @@ const loop = () =>
 getCubesCoordinates();
 function getCubesCoordinates(size)
 {
-  for (let i = 0; i < 125; i++)
+  for (let i = 0; i <= 124; i++)
   {
     let vector = new THREE.Vector3(x, y, z);
     CUBES_COORDINATES.push(vector);
@@ -180,6 +221,7 @@ function getCubesCoordinates(size)
       }
     }
   }
+
   loop();
 }
 
@@ -198,11 +240,11 @@ function onPointerMove(event)
 
 function resetShape()
 {
-  console.log(CUBES_ARRAY);
-  CUBES_ARRAY.forEach((cube) =>
-  {
-    cube.rotate();
+  CUBES_ARRAY.forEach((cube, i) => {
+    cube.scale.set(0,0,0)
   });
+
+
 }
 
 // Je n'ai besoin de créer les cubes qu'une seule fois. Seul la visibilité change afin de créer l'illusion d'une animation
@@ -216,6 +258,4 @@ function basicAnimation(size, bigCubeSize)
       vectors.push(cube)
     }
   });
-  console.log(vectors);
-
 }
