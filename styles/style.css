@@ -1,5 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=IM+Fell+DW+Pica:ital@1&family=Mountains+of+Christmas&family=Pacifico&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Capriola&display=swap');
 html, body
 {
   display: flex;
@@ -10,7 +9,7 @@ html, body
   margin: 0;
   padding: 0;
   background: black;
-  font-family: 'IM Fell DW Pica', serif;
+  font-family: 'Capriola', sans-serif;
 }
 
 canvas
@@ -48,9 +47,16 @@ canvas
 {
   text-decoration: none;
   color: white;
-  font-size: 1.8vw;
+  font-size: 1.6vw;
   font-weight: bold;
   cursor: pointer;
+  background-clip: text;
+  background-image: linear-gradient(90deg, hsla(229, 89%, 55%, 1) 0%, hsla(224, 100%, 64%, 1) 27%, hsla(203, 84%, 74%, 1) 68%, hsla(204, 100%, 93%, 1) 100%);
+}
+
+.gradient
+{
+  color: transparent;
 }
 
 .menuElement:hover
@@ -78,7 +84,7 @@ canvas
 
 #job
 {
-  font-size: 2vw;
+  font-size: 1.7vw;
 }
 
 #contactContainer

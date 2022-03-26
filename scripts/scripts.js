@@ -26,8 +26,12 @@ renderer.setSize(canvas.width, canvas.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio,2))
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 10000);
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 1000);
 camera.position.set(-10, 10, 8);
+
+const mirrorCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 1000);
+mirrorCamera.position.set(-10, 10, 8);
+scene.add(mirrorCamera);
 
 let light, light2, light3, light4, light5, light6;
 
@@ -56,19 +60,17 @@ const colorPallets =
 ]
 
 let index = 124;
+let CUBE_SIZE = 5;
 let COLOR_PALLET = getRandomColorPallet();
 let LITTLE_CUBE_NEXT_POSITION = new THREE.Vector3(-5, -5, -5); // Point de départ
 let CUBES_ARRAY = [];
 let CUBES_COORDINATES = []
-let ANIMATIONS_LIST = [rightToLeftAnimation, oddAndEvenAnimation, randomAnimation, bottomToTopAnimation];
+let ANIMATIONS_LIST = [rightToLeftAnimation, oddAndEvenAnimation, randomAnimation];
 let ANIMATIONS_PLAY = ANIMATIONS_LIST[getRandomNumber(0, ANIMATIONS_LIST.length-1)];
 
 let x = -5;
 let y = -5;
 let z = -5;
-
-
-function bottomToTopAnimation()
 
 function randomAnimation()
 {
@@ -77,7 +79,6 @@ function randomAnimation()
   CUBES_COORDINATES.splice(randomNumber, 1);
   return clone;
 }
-
 
 
 function rightToLeftAnimation()
@@ -118,8 +119,6 @@ class Cube
 {
   constructor()
   {
-    this.bigCubeSize = 10;
-    this.bigCubePosition = new THREE.Vector3();
     this.size = 2;
     this.position = ANIMATIONS_PLAY();
     this.scale = false;
@@ -154,7 +153,7 @@ function scaleCube()
   {
     if (cube.grow === false)
     {
-      cube.scale.subScalar(0.012);
+      cube.scale.subScalar(0.019);
       if (cube.scale.x <= 0.1)
       {
         cube.grow = true;
@@ -189,6 +188,7 @@ const loop = () =>
   else {
     window.addEventListener('click', resetShape);
   }
+
   scaleCube();
   control.update();
   renderer.render(scene, camera);
@@ -199,7 +199,7 @@ const loop = () =>
 getCubesCoordinates();
 function getCubesCoordinates(size)
 {
-  for (let i = 0; i <= 124; i++)
+  for (let i = 0; i < Math.pow(CUBE_SIZE,3); i++)
   {
     let vector = new THREE.Vector3(x, y, z);
     CUBES_COORDINATES.push(vector);
@@ -240,22 +240,70 @@ function onPointerMove(event)
 
 function resetShape()
 {
-  CUBES_ARRAY.forEach((cube, i) => {
-    cube.scale.set(0,0,0)
+  CUBES_ARRAY.forEach((cube) => {
+    cube.visible = false;
   });
 
+  setTimeout( ()=>
+  {
+    let cubeBehind = CUBES_ARRAY.filter(cube => cube.position.z == -5 && cube.position.y == -5);
+    cubeBehind.sort((a, b) => a.position.x - b.position.x);
+    let cubeRight = CUBES_ARRAY.filter(cube => cube.position.x == 3 && cube.position.y == -5);
+    cubeRight.sort((a, b) => a.position.z - b.position.z);
+    let cubeFront = CUBES_ARRAY.filter(cube => cube.position.z == 3 && cube.position.y == -5);
+    cubeFront.sort((a, b) => b.position.x - a.position.x);
+    let cubeLeft = CUBES_ARRAY.filter(cube => cube.position.x == -5 && cube.position.y == -5);
+    cubeLeft.sort((a, b) => b.position.z - a.position.z);
 
+    let cubeBehindS = CUBES_ARRAY.filter(cube => cube.position.z == -5 && cube.position.y == 3);
+    cubeBehindS.sort((a, b) => a.position.x - b.position.x);
+    let cubeRightS = CUBES_ARRAY.filter(cube => cube.position.x == 3 && cube.position.y == 3);
+    cubeRightS.sort((a, b) => a.position.z - b.position.z);
+    let cubeFrontS = CUBES_ARRAY.filter(cube => cube.position.z == 3 && cube.position.y == 3);
+    cubeFrontS.sort((a, b) => b.position.x - a.position.x);
+    let cubeLeftS = CUBES_ARRAY.filter(cube => cube.position.x == -5 && cube.position.y == 3);
+    cubeLeftS.sort((a, b) => b.position.z - a.position.z);
+
+    let cubeBehind2 = CUBES_ARRAY.filter(cube => cube.position.z == -3 && cube.position.y == -3 && (cube.position.x >= -3 && cube.position.x <= 1));
+    cubeBehind2.sort((a, b) => a.position.x - b.position.x);
+    let cubeRight2 = CUBES_ARRAY.filter(cube => cube.position.x == 1 && cube.position.y == -3 && (cube.position.z >= -3 && cube.position.z <= 1));
+    cubeRight2.sort((a, b) => a.position.z - b.position.z);
+    let cubeFront2 = CUBES_ARRAY.filter(cube => cube.position.z == 1 && cube.position.y == -3 && (cube.position.x >= -3 && cube.position.x <= 1));
+    cubeFront2.sort((a, b) => b.position.x - a.position.x);
+    let cubeLeft2 = CUBES_ARRAY.filter(cube => cube.position.x == -3 && cube.position.y == -3 && (cube.position.z >= -3 && cube.position.z <= 1));
+    cubeLeft2.sort((a, b) => b.position.z - a.position.z);
+
+    let cubeBehindS2 = CUBES_ARRAY.filter(cube => cube.position.z == -3 && cube.position.y == 1 && (cube.position.x >= -3 && cube.position.x <= 1));
+    cubeBehindS2.sort((a, b) => a.position.x - b.position.x);
+    let cubeRightS2 = CUBES_ARRAY.filter(cube => cube.position.x == 1 && cube.position.y == 1 && (cube.position.z >= -3 && cube.position.z <= 1));
+    cubeRightS2.sort((a, b) => a.position.z - b.position.z);
+    let cubeFrontS2 = CUBES_ARRAY.filter(cube => cube.position.z == 1 && cube.position.y == 1 && (cube.position.x >= -3 && cube.position.x <= 1));
+    cubeFrontS2.sort((a, b) => b.position.x - a.position.x);
+    let cubeLeftS2 = CUBES_ARRAY.filter(cube => cube.position.x == -3 && cube.position.y == 1 && (cube.position.z >= -3 && cube.position.z <= 1));
+    cubeLeftS2.sort((a, b) => b.position.z - a.position.z);
+
+    let animation = cubeBehind.concat(cubeRight, cubeFront, cubeLeft, cubeBehind2, cubeRight2, cubeFront2, cubeLeft2);
+    let symetrize = cubeBehindS.concat(cubeRightS, cubeFrontS, cubeLeftS, cubeBehindS2, cubeRightS2, cubeFrontS2, cubeLeftS2);
+    let i = 0;
+
+    let startAnimation = setInterval(() =>
+    {
+      if (i == animation.length)
+      {
+        clearInterval(startAnimation);
+      }
+      else {
+        symetrize[i].visible = true;
+        animation[i].visible = true;
+        i++;
+      }
+    }, 10)
+
+
+  }, 400)
 }
 
-// Je n'ai besoin de créer les cubes qu'une seule fois. Seul la visibilité change afin de créer l'illusion d'une animation
-function basicAnimation(size, bigCubeSize)
+function vortexAnimation()
 {
-  let vectors = [];
-  CUBES_COORDINATES.forEach((cube) =>
-  {
-    if (cube.x == -3)
-    {
-      vectors.push(cube)
-    }
-  });
+  let cubeBehind = CUBES_ARRAY.filter(cube => cube.position.z == -5 && cube.position.y == -5)
 }
