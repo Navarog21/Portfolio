@@ -2,62 +2,11 @@ import * as THREE from 'https://unpkg.com/three@0.119.0/build/three.module.js';
 import { OrbitControls } from 'https://unpkg.com/three@0.119.0/examples/jsm/controls/OrbitControls.js';
 import { RGBELoader } from 'https://unpkg.com/three@0.119.0/examples/jsm/loaders/RGBELoader.js';
 import { GLTFLoader } from 'https://unpkg.com/three@0.119.0/examples/jsm/loaders/GLTFLoader.js';
+import {canvas, renderer, scene, camera, getRandomNumber} from './base.js'
+import vShader from './shaders/vertexShader.glsl.js';
+import fShader from './shaders/fragmentShader.glsl.js';
+import colorPallets from './color.js';
 
-const canvas = document.querySelector('#background');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
-const renderer = new THREE.WebGLRenderer({
-  alpha: true,
-  autoclear: true,
-  canvas: canvas,
-  antialiasing: true
-});
-
-window.addEventListener('resize', () =>
-{
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio,2))
-})
-
-renderer.setSize(canvas.width, canvas.height);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio,2))
-
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 1000);
-camera.position.set(-10, 10, 8);
-
-const mirrorCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 1000);
-mirrorCamera.position.set(-10, 10, 8);
-scene.add(mirrorCamera);
-
-let light, light2, light3, light4, light5, light6;
-
-light = new THREE.PointLight('white', 1, 100);
-light2 = new THREE.PointLight('white', 1, 100);
-light3 = new THREE.PointLight('white', 1, 100);
-light4 = new THREE.PointLight('white', 1, 100);
-light5 = new THREE.PointLight('white', 1, 100);
-light6 = new THREE.PointLight('white', 1, 100);
-//---------------------------//
-light.position.set(0, 0, 10);
-light2.position.set(0, 0, -10);
-light3.position.set(-10, 0, 0);
-light4.position.set(10, 0, 0);
-light5.position.set(0, -10, 0);
-light6.position.set(0, 10, 0);
-
-scene.add(light, light2, light3, light4, light5, light6);
-
-const colorPallets =
-[
-  ['#507255', "#488B49", "#4AAD52"],
-  ['#D72323', "orange", "#E0CA3C", "#000500", "#191102"],
-  ['#0051A8', "#D9F0FF", "#284DF3", "#83C9F4", "#4879FF"],
-  ['#00A83B', "#F0EC57", "#34190C"]
-]
 
 let index = 124;
 let CUBE_SIZE = 5;
@@ -72,6 +21,37 @@ let x = -5;
 let y = -5;
 let z = -5;
 
+let geometry = new THREE.BoxGeometry(5,5,5);
+let customShader = new THREE.ShaderMaterial({
+    vertexShader: vShader,
+    fragmentShader: fShader
+  }
+)
+let mesh = new THREE.Mesh(geometry, customShader);
+scene.add(mesh);
+mesh.position.y = 7
+
+const loader = new THREE.FontLoader();
+let contact;
+
+loader.load('../fonts/test.json', (font) => {
+
+	const geometry = new THREE.TextGeometry( 'Contact', {
+		font: font,
+		size: 1,
+		height: 0.1,
+	} );
+  const material = new THREE.MeshPhongMaterial({color: "white"});
+  const mesh = new THREE.Mesh(geometry, material);
+  mesh.rotation.x = Math.PI/2;
+  mesh.rotation.z = Math.PI/2;
+  mesh.rotation.y = Math.PI;
+  mesh.position.set(1,0,8)
+  mesh.name = "text";
+  scene.add(mesh);
+  contact = mesh;
+});
+
 function randomAnimation()
 {
   let randomNumber = getRandomNumber(0, CUBES_COORDINATES.length-1);
@@ -79,7 +59,6 @@ function randomAnimation()
   CUBES_COORDINATES.splice(randomNumber, 1);
   return clone;
 }
-
 
 function rightToLeftAnimation()
 {
@@ -170,6 +149,7 @@ function scaleCube()
   });
 }
 
+
 const control = new OrbitControls(camera, renderer.domElement);
 control.enableDamping = true;
 control.enablePan = true;
@@ -182,11 +162,24 @@ const loop = () =>
   raycaster.setFromCamera(pointer, camera);
   let intersects = raycaster.intersectObjects(scene.children)
 
+  for (let i = 0; i < intersects.length; i++)
+  {
+    if (intersects[i].object.name === "text")
+    {
+      document.body.style.cursor = "pointer";
+      intersects[i].object.material.color.set("red");
+      window.addEventListener('click', () =>
+      {
+        window.location.href = "https://github.com/Navarog21";
+      })
+    }
+  }
+
   if (CUBES_ARRAY.length <= 124) {
     addCube();
   }
   else {
-    window.addEventListener('click', resetShape);
+    // window.addEventListener('click', resetShape);
   }
 
   scaleCube();
@@ -194,7 +187,6 @@ const loop = () =>
   renderer.render(scene, camera);
   requestAnimationFrame(loop)
 }
-
 
 getCubesCoordinates();
 function getCubesCoordinates(size)
@@ -237,6 +229,62 @@ function onPointerMove(event)
 	pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
 	pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function resetShape()
 {
