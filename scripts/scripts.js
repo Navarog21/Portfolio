@@ -2,13 +2,14 @@ import * as THREE from 'https://unpkg.com/three@0.119.0/build/three.module.js';
 import { OrbitControls } from 'https://unpkg.com/three@0.119.0/examples/jsm/controls/OrbitControls.js';
 import { RGBELoader } from 'https://unpkg.com/three@0.119.0/examples/jsm/loaders/RGBELoader.js';
 import { GLTFLoader } from 'https://unpkg.com/three@0.119.0/examples/jsm/loaders/GLTFLoader.js';
-import {canvas, renderer, scene, camera, getRandomNumber} from './base.js'
+import {canvas, renderer, scene, camera, control, getRandomNumber} from './base.js'
 import vShader from './shaders/vertexShader.glsl.js';
 import fShader from './shaders/fragmentShader.glsl.js';
-import colorPallets from './color.js';
+import menu from './menu.js';
+import {colorPallets, getRandomColorPallet} from './color.js';
+import {rightToLeftAnimation, oddAndEvenAnimation, randomAnimation, scaleCube} from './animations.js';
 
 
-let index = 124;
 let CUBE_SIZE = 5;
 let COLOR_PALLET = getRandomColorPallet();
 let LITTLE_CUBE_NEXT_POSITION = new THREE.Vector3(-5, -5, -5); // Point de départ
@@ -21,97 +22,24 @@ let x = -5;
 let y = -5;
 let z = -5;
 
-let geometry = new THREE.BoxGeometry(5,5,5);
-let customShader = new THREE.ShaderMaterial({
-    vertexShader: vShader,
-    fragmentShader: fShader
-  }
-)
-let mesh = new THREE.Mesh(geometry, customShader);
-scene.add(mesh);
-mesh.position.y = 7
-
-const loader = new THREE.FontLoader();
-let contact;
-
-loader.load('../fonts/test.json', (font) => {
-
-	const geometry = new THREE.TextGeometry( 'Contact', {
-		font: font,
-		size: 1,
-		height: 0.1,
-	} );
-  const material = new THREE.MeshPhongMaterial({color: "white"});
-  const mesh = new THREE.Mesh(geometry, material);
-  mesh.rotation.x = Math.PI/2;
-  mesh.rotation.z = Math.PI/2;
-  mesh.rotation.y = Math.PI;
-  mesh.position.set(1,0,8)
-  mesh.name = "text";
-  scene.add(mesh);
-  contact = mesh;
-});
-
-function randomAnimation()
-{
-  let randomNumber = getRandomNumber(0, CUBES_COORDINATES.length-1);
-  let clone = CUBES_COORDINATES[randomNumber];
-  CUBES_COORDINATES.splice(randomNumber, 1);
-  return clone;
-}
-
-function rightToLeftAnimation()
-{
-  let clone = CUBES_COORDINATES[index];
-  index--;
-  return clone;
-}
-
-function oddAndEvenAnimation()
-{
-  let clone;
-  if (index % 2 == 0)
-  {
-    if (index == 0)
-    {
-      clone = CUBES_COORDINATES[index];
-      index = 1;
-      return clone;
-    }
-    else
-    {
-      clone = CUBES_COORDINATES[index];
-      index-=2;
-      return clone;
-    }
-  }
-
-  if (index%2 != 0 && index != 0)
-  {
-    clone = CUBES_COORDINATES[index];
-    index += 2;
-    return clone;
-  }
-}
-
 class Cube
 {
   constructor()
   {
-    this.size = 2;
-    this.position = ANIMATIONS_PLAY();
+    this.size = 1.8;
+    this.position = ANIMATIONS_PLAY(CUBES_COORDINATES);
     this.scale = false;
   }
 
   create()
   {
-    const geometry = new THREE.BoxGeometry(this.size, this.size, this.size);
-    const material = new THREE.MeshStandardMaterial({
+    let geometry = new THREE.BoxGeometry(this.size, this.size, this.size);
+    let material = new THREE.MeshStandardMaterial({
       color: COLOR_PALLET[getRandomNumber(0,COLOR_PALLET.length-1)],
       transparent: true,
       opacity: 0.8
     })
-    const mesh = new THREE.Mesh(geometry, material);
+    let mesh = new THREE.Mesh(geometry, material);
     mesh.name = "cube";
     mesh.position.set(this.position.x, this.position.y, this.position.z);
     Object.defineProperty(mesh, 'grow',{value: false, writable: true})
@@ -126,34 +54,6 @@ function addCube()
   cube.create();
 }
 
-function scaleCube()
-{
-  CUBES_ARRAY.forEach((cube) =>
-  {
-    if (cube.grow === false)
-    {
-      cube.scale.subScalar(0.019);
-      if (cube.scale.x <= 0.1)
-      {
-        cube.grow = true;
-      }
-    }
-    if (cube.grow === true)
-    {
-      cube.scale.addScalar(0.009);
-      if (cube.scale.x >= 0.9)
-      {
-        cube.grow = false;
-      }
-    }
-  });
-}
-
-
-const control = new OrbitControls(camera, renderer.domElement);
-control.enableDamping = true;
-control.enablePan = true;
-
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
 
@@ -164,7 +64,7 @@ const loop = () =>
 
   for (let i = 0; i < intersects.length; i++)
   {
-    if (intersects[i].object.name === "text")
+    if (intersects[i].object.name === "menu")
     {
       document.body.style.cursor = "pointer";
       intersects[i].object.material.color.set("red");
@@ -174,7 +74,6 @@ const loop = () =>
       })
     }
   }
-
   if (CUBES_ARRAY.length <= 124) {
     addCube();
   }
@@ -182,13 +81,15 @@ const loop = () =>
     // window.addEventListener('click', resetShape);
   }
 
-  scaleCube();
+  scaleCube(CUBES_ARRAY);
   control.update();
   renderer.render(scene, camera);
   requestAnimationFrame(loop)
 }
 
 getCubesCoordinates();
+// Sert à obtenir l'emplacement de chacun des cubes
+// Obtenus en partant du coin inférieur gauche arrière
 function getCubesCoordinates(size)
 {
   for (let i = 0; i < Math.pow(CUBE_SIZE,3); i++)
@@ -219,10 +120,6 @@ function getCubesCoordinates(size)
 
 window.addEventListener('pointermove', onPointerMove)
 
-function getRandomColorPallet()
-{
-  return colorPallets[getRandomNumber(0,colorPallets.length-1)];
-}
 
 function onPointerMove(event)
 {
@@ -230,62 +127,7 @@ function onPointerMove(event)
 	pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/*
 function resetShape()
 {
   CUBES_ARRAY.forEach((cube) => {
@@ -349,9 +191,4 @@ function resetShape()
 
 
   }, 400)
-}
-
-function vortexAnimation()
-{
-  let cubeBehind = CUBES_ARRAY.filter(cube => cube.position.z == -5 && cube.position.y == -5)
-}
+}*/

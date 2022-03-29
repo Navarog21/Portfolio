@@ -1,3 +1,5 @@
+import {getRandomNumber} from './base.js';
+
 const colorPallets =
 [
   ["#488B49", "#4AAD52", "#1BCB2C", "#00790C"],
@@ -6,4 +8,9 @@ const colorPallets =
   ['#00A83B', "#F0EC57", "#34190C"]
 ]
 
-export default colorPallets
+function getRandomColorPallet()
+{
+  return colorPallets[getRandomNumber(0,colorPallets.length-1)];
+}
+
+export {colorPallets, getRandomColorPallet}
