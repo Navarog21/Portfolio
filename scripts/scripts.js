@@ -1,58 +1,12 @@
 import * as THREE from 'https://unpkg.com/three@0.119.0/build/three.module.js';
-import { OrbitControls } from 'https://unpkg.com/three@0.119.0/examples/jsm/controls/OrbitControls.js';
 import { RGBELoader } from 'https://unpkg.com/three@0.119.0/examples/jsm/loaders/RGBELoader.js';
 import { GLTFLoader } from 'https://unpkg.com/three@0.119.0/examples/jsm/loaders/GLTFLoader.js';
-import {canvas, renderer, scene, camera, control, getRandomNumber} from './base.js'
+import {canvas, renderer, scene, camera, control} from './base.js'
 import vShader from './shaders/vertexShader.glsl.js';
 import fShader from './shaders/fragmentShader.glsl.js';
 import menu from './menu.js';
-import {colorPallets, getRandomColorPallet} from './color.js';
-import {rightToLeftAnimation, oddAndEvenAnimation, randomAnimation, scaleCube} from './animations.js';
-
-
-let CUBE_SIZE = 5;
-let COLOR_PALLET = getRandomColorPallet();
-let LITTLE_CUBE_NEXT_POSITION = new THREE.Vector3(-5, -5, -5); // Point de départ
-let CUBES_ARRAY = [];
-let CUBES_COORDINATES = []
-let ANIMATIONS_LIST = [rightToLeftAnimation, oddAndEvenAnimation, randomAnimation];
-let ANIMATIONS_PLAY = ANIMATIONS_LIST[getRandomNumber(0, ANIMATIONS_LIST.length-1)];
-
-let x = -5;
-let y = -5;
-let z = -5;
-
-class Cube
-{
-  constructor()
-  {
-    this.size = 1.8;
-    this.position = ANIMATIONS_PLAY(CUBES_COORDINATES);
-    this.scale = false;
-  }
-
-  create()
-  {
-    let geometry = new THREE.BoxGeometry(this.size, this.size, this.size);
-    let material = new THREE.MeshStandardMaterial({
-      color: COLOR_PALLET[getRandomNumber(0,COLOR_PALLET.length-1)],
-      transparent: true,
-      opacity: 0.8
-    })
-    let mesh = new THREE.Mesh(geometry, material);
-    mesh.name = "cube";
-    mesh.position.set(this.position.x, this.position.y, this.position.z);
-    Object.defineProperty(mesh, 'grow',{value: false, writable: true})
-    CUBES_ARRAY.push(mesh);
-    scene.add(mesh);
-  }
-}
-
-function addCube()
-{
-  let cube = new Cube();
-  cube.create();
-}
+import { Cube, CUBES_ARRAY, addCube } from './cube.js';
+import {scaleCube} from './animations.js';
 
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
@@ -86,46 +40,9 @@ const loop = () =>
   renderer.render(scene, camera);
   requestAnimationFrame(loop)
 }
-
-getCubesCoordinates();
-// Sert à obtenir l'emplacement de chacun des cubes
-// Obtenus en partant du coin inférieur gauche arrière
-function getCubesCoordinates(size)
-{
-  for (let i = 0; i < Math.pow(CUBE_SIZE,3); i++)
-  {
-    let vector = new THREE.Vector3(x, y, z);
-    CUBES_COORDINATES.push(vector);
-    if(z <= 3){
-      if (z == 3){
-        z = -5;
-        if (y <= 3){
-          if (y == 3) {
-            y = -5;
-            x += 2;
-          }
-          else {
-            y += 2;
-          }
-        }
-      }
-      else {
-        z += 2
-      }
-    }
-  }
-
-  loop();
-}
-
-window.addEventListener('pointermove', onPointerMove)
+loop()
 
 
-function onPointerMove(event)
-{
-	pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-	pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
-}
 
 /*
 function resetShape()

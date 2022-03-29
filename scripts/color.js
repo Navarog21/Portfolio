@@ -1,5 +1,3 @@
-import {getRandomNumber} from './base.js';
-
 const colorPallets =
 [
   ["#488B49", "#4AAD52", "#1BCB2C", "#00790C"],

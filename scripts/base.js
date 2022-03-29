@@ -1,5 +1,6 @@
 import * as THREE from 'https://unpkg.com/three@0.119.0/build/three.module.js';
 import { OrbitControls } from 'https://unpkg.com/three@0.119.0/examples/jsm/controls/OrbitControls.js';
+
 const canvas = document.querySelector('#background');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
@@ -54,24 +55,8 @@ control.enablePan = true;
 
 scene.add(light, light2, light3, light4, light5, light6);
 
-function getRandomNumber(min, max)
-{
-  const number = Math.round(Math.random() * (max - min) + min);
-  return number;
-}
-
-function getRandomBoolean()
-{
-  let boolean;
-  let digit = getRandomNumber(0, 1);
-  if (digit == 0) boolean = false;
-  else boolean = true;
-  return boolean;
-}
-
-export {canvas, renderer, scene, camera, control, getRandomNumber};
+export {canvas, renderer, scene, camera, control};
 export default scene;
-export {getRandomNumber as randomNumber};
 
 /*
 let i = 40;

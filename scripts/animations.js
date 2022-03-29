@@ -1,5 +1,3 @@
-import {getRandomNumber} from './base.js';
-
 let index = 124;
 
 function scaleCube(cubes)
@@ -72,5 +70,6 @@ function vortexAnimation()
   let cubeBehind = CUBES_ARRAY.filter(cube => cube.position.z == -5 && cube.position.y == -5)
 }
 
-export {rightToLeftAnimation, oddAndEvenAnimation, randomAnimation, scaleCube};
+export {rightToLeftAnimation, oddAndEvenAnimation, randomAnimation};
 let ANIMATIONS_LIST = [rightToLeftAnimation, oddAndEvenAnimation, randomAnimation];
+export {scaleCube};
